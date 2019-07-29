@@ -1,0 +1,12 @@
+[package]
+name = "hecto"
+version = "0.1.0"
+authors = ["Félix Léveillé <flxleveille@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+pulldown-cmark = "0.5.3"
+regex = "1.2.0"
+lazy_static = "1.3.0"
+handlebars = "2.0.1"
+serde_json = "1.0.40"
