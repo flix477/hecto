@@ -5,17 +5,17 @@ pub struct Config {
     pub cache_path: PathBuf,
     pub theme_path: PathBuf,
     pub hostname: String,
-    pub port: u16
+    pub port: u16,
 }
 
 impl Default for Config {
     fn default() -> Self {
         Config {
-            site_root: Path::new("/mnt/c/Users/comet/Documents/Code/math").into(),
-            cache_path: Path::new("/mnt/c/Users/comet/Documents/Code/math/.hecto").into(),
+            site_root: Path::new("C:/Users/comet/Documents/Code/ing150").into(),
+            cache_path: Path::new("C:/Users/comet/Documents/Code/math/.hecto").into(),
             theme_path: Path::new("themes/default").into(),
             hostname: "127.0.0.1".into(),
-            port: 7878
+            port: 7878,
         }
     }
 }

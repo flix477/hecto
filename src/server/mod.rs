@@ -1,12 +1,14 @@
-use std::net::{TcpListener, TcpStream};
-use std::io::{Read, Write};
-use regex::Regex;
-use std::path::Path;
-use crate::core::folder::FolderEntry;
+use crate::core::folder::{Folder, FolderEntry};
+use crate::core::post::Post;
 use crate::core::Hecto;
+use regex::Regex;
+use std::io::{Read, Write};
+use std::net::{TcpListener, TcpStream};
+use std::path::Path;
+use std::sync::{Arc, Mutex};
 
 pub struct Server<T> {
-    middlewares: Vec<fn(&Request, &T) -> MiddlewareResult<T>>
+    middlewares: Vec<fn(&Request, &T) -> MiddlewareResult<T>>,
 }
 
 impl<T> Server<T> {
@@ -41,18 +43,23 @@ impl<T> Server<T> {
 impl Default for Server<Hecto> {
     fn default() -> Self {
         Self {
-            middlewares: vec![stuff]
+            middlewares: vec![stuff],
         }
     }
 }
 
 impl Server<Hecto> {
-    pub fn run(&self, app: Hecto) {
-        let listener = TcpListener::bind(app.config.address())
-            .expect(format!("Error starting server at address: {}", app.config.address()).as_str());
+    pub fn run(&self, app: Arc<Mutex<Hecto>>) {
+        let listener = {
+            let app = app.lock().unwrap();
+            TcpListener::bind(app.config.address()).expect(
+                format!("Error starting server at address: {}", app.config.address()).as_str(),
+            )
+        };
 
         for stream in listener.incoming() {
             let stream = stream.unwrap();
+            let app = app.lock().unwrap();
             self.handle_connection(stream, &app);
         }
     }
@@ -60,31 +67,31 @@ impl Server<Hecto> {
 
 pub enum MiddlewareResult<T> {
     Next(T),
-    End(Response)
+    End(Response),
 }
 
 pub struct Request<'a> {
-    pub path: &'a Path
+    pub path: &'a Path,
 }
 
 #[derive(Clone, Debug)]
 pub struct Response {
     pub code: HttpCode,
-    pub contents: String
+    pub contents: String,
 }
 
 impl Response {
     pub fn ok(contents: String) -> Response {
         Response {
             code: HttpCode::OK,
-            contents
+            contents,
         }
     }
 
     pub fn bad_request() -> Response {
         Response {
             code: HttpCode::OK,
-            contents: String::new()
+            contents: String::new(),
         }
     }
 }
@@ -104,7 +111,7 @@ impl ToString for Response {
 pub enum HttpCode {
     OK = 200,
     BadRequest = 400,
-    NotFound = 404
+    NotFound = 404,
 }
 
 impl ToString for HttpCode {
@@ -112,7 +119,7 @@ impl ToString for HttpCode {
         let string = match self {
             HttpCode::OK => "OK",
             HttpCode::BadRequest => "Bad Request",
-            HttpCode::NotFound => "Not Found"
+            HttpCode::NotFound => "Not Found",
         };
         string.into()
     }
@@ -120,14 +127,14 @@ impl ToString for HttpCode {
 
 fn stuff<'a>(request: &Request, app: &Hecto) -> MiddlewareResult<Hecto> {
     let path = request.path;
-    let element = app.root.element_at_path(path);
+    let element = app.element_at_path(path);
 
     let response = if let Some(entry) = element {
         Response::ok(entry.to_html())
     } else {
         Response {
             code: HttpCode::NotFound,
-            contents: String::new()
+            contents: String::new(),
         }
     };
     MiddlewareResult::End(response)
@@ -137,11 +144,11 @@ pub trait ToHtml {
     fn to_html(&self) -> String;
 }
 
-impl ToHtml for FolderEntry {
+impl ToHtml for FolderEntry<&Post, &Folder> {
     fn to_html(&self) -> String {
         match self {
             FolderEntry::Post(post) => post.contents.clone(),
-            FolderEntry::Folder(folder) => String::new()
+            FolderEntry::Folder(_) => String::new(),
         }
     }
 }
