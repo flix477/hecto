@@ -69,7 +69,7 @@
         <div class="container">
             <header>
                 <a href="/">
-                    <h1>ing<span>blog</span></h1>
+                    <h1>mah<span>blog</span></h1>
                 </a>
             </header>
             <div class="content">

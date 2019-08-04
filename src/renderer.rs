@@ -14,18 +14,8 @@ impl Renderer {
         let mut registry = Handlebars::new();
         registry.set_strict_mode(true);
         let mut renderer = Renderer { registry };
-        renderer.register_template("page", theme_path);
-        renderer.register_template("post", theme_path);
+        renderer.register_templates(&theme_path);
         renderer
-    }
-
-    fn register_template(&mut self, template: &str, theme_path: &PathBuf) {
-        self.registry
-            .register_template_file(
-                template,
-                path_with_component(&theme_path, format!("{}.tpl", template).as_str()),
-            )
-            .expect(format!("Cannot read template: {}", template).as_str());
     }
 
     pub fn rendered_post(&self, post: Post) -> Result<Post, Box<dyn Error>> {
@@ -34,6 +24,7 @@ impl Renderer {
     }
 
     pub fn render_post(&self, post: &Post) -> Result<String, Box<dyn Error>> {
+        dbg!(&post.name);
         self.registry
             .render(
                 "post",
@@ -43,6 +34,20 @@ impl Renderer {
                 }),
             )
             .map_err(boxed_error)
+    }
+
+    pub fn register_templates(&mut self, theme_path: &PathBuf) {
+        self.register_template("page", theme_path);
+        self.register_template("post", theme_path);
+    }
+
+    fn register_template(&mut self, template: &str, theme_path: &PathBuf) {
+        self.registry
+            .register_template_file(
+                template,
+                path_with_component(&theme_path, format!("{}.tpl", template).as_str()),
+            )
+            .expect(format!("Cannot read template: {}", template).as_str());
     }
 }
 

@@ -1,54 +1,36 @@
-use crate::core::folder::{Folder, FolderEntry};
-use crate::core::post::Post;
-use crate::core::Hecto;
 use regex::Regex;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
+use std::error::Error;
+use core::fmt;
+use std::fmt::Display;
+use crate::core::Hecto;
+use crate::server::response::Response;
+use crate::util::boxed_error;
+use crate::server::thread_pool::ThreadPool;
+use crate::server::query::stuff;
 
-pub struct Server<T> {
-    middlewares: Vec<fn(&Request, &T) -> MiddlewareResult<T>>,
+mod query;
+mod response;
+mod thread_pool;
+
+type Middleware<T> = fn(&Request, &T) -> MiddlewareResult<T>;
+
+pub struct Server {
+    thread_pool: ThreadPool
 }
 
-impl<T> Server<T> {
-    fn handle_connection(&self, mut stream: TcpStream, state: &T) {
-        let mut buffer = [0; 512];
-        stream.read(&mut buffer).unwrap();
-        let value = String::from_utf8_lossy(&buffer);
-
-        let response = if let Some(url) = get_url(&value) {
-            let request = Request { path: url };
-            self.run_middlewares(&request, state)
-        } else {
-            Response::bad_request()
-        };
-
-        stream.write(response.to_string().as_bytes()).unwrap();
-        stream.flush().unwrap();
-    }
-
-    fn run_middlewares(&self, request: &Request, state: &T) -> Response {
-        for middleware in &self.middlewares {
-            let result = (middleware)(request, state);
-            if let MiddlewareResult::End(response) = result {
-                return response;
-            }
-        }
-
-        panic!("Invalid middlewares")
-    }
-}
-
-impl Default for Server<Hecto> {
+impl Default for Server {
     fn default() -> Self {
         Self {
-            middlewares: vec![stuff],
+            thread_pool: ThreadPool::new(4)
         }
     }
 }
 
-impl Server<Hecto> {
+impl Server {
     pub fn run(&self, app: Arc<Mutex<Hecto>>) {
         let listener = {
             let app = app.lock().unwrap();
@@ -56,13 +38,54 @@ impl Server<Hecto> {
                 format!("Error starting server at address: {}", app.config.address()).as_str(),
             )
         };
+        let middlewares: Vec<Middleware<Arc<Mutex<Hecto>>>> = vec![stuff];
+        let middlewares = Arc::new(middlewares);
 
         for stream in listener.incoming() {
             let stream = stream.unwrap();
-            let app = app.lock().unwrap();
-            self.handle_connection(stream, &app);
+            let app = app.clone();
+            let middlewares = middlewares.clone();
+            dbg!("im in");
+            self.thread_pool.execute(move || {
+                handle_connection(stream, &app, &middlewares).unwrap_or_else(|error| {
+                    println!("Error processing connection: {:?}", error);
+                });
+            });
         }
     }
+}
+
+fn handle_connection<T>(mut stream: TcpStream, state: &T, middlewares: &[Middleware<T>]) -> Result<(), Box<dyn Error>> {
+    let response = get_response(&mut stream, state, middlewares);
+    stream.write(response.to_string().as_bytes())?;
+    stream.flush().map_err(boxed_error)
+}
+
+fn get_response<T>(stream: &mut TcpStream, state: &T, middlewares: &[Middleware<T>]) -> Response {
+    get_buffer(stream)
+        .map(|buffer| {
+            dbg!("huh");
+            String::from_utf8_lossy(&buffer).into_owned()
+        })
+        .and_then(|buffer| get_url(&buffer)
+            .ok_or(RequestError::InvalidUrl)
+            .map_err(boxed_error))
+        .map(|url| {
+            let request = Request { path: &url };
+            run_middlewares(&request, state, middlewares)
+        })
+        .unwrap_or_else(|error| Response::bad_request(error.to_string()))
+}
+
+fn run_middlewares<T>(request: &Request, state: &T, middlewares: &[Middleware<T>]) -> Response {
+    for middleware in middlewares {
+        let result = (middleware)(request, state);
+        if let MiddlewareResult::End(response) = result {
+            return response;
+        }
+    }
+
+    panic!("Invalid middlewares")
 }
 
 pub enum MiddlewareResult<T> {
@@ -74,93 +97,37 @@ pub struct Request<'a> {
     pub path: &'a Path,
 }
 
-#[derive(Clone, Debug)]
-pub struct Response {
-    pub code: HttpCode,
-    pub contents: String,
-}
-
-impl Response {
-    pub fn ok(contents: String) -> Response {
-        Response {
-            code: HttpCode::OK,
-            contents,
-        }
-    }
-
-    pub fn bad_request() -> Response {
-        Response {
-            code: HttpCode::OK,
-            contents: String::new(),
-        }
-    }
-}
-
-impl ToString for Response {
-    fn to_string(&self) -> String {
-        format!(
-            "HTTP/1.1 {} {}\r\n\r\n{}",
-            self.code as usize,
-            self.code.to_string(),
-            self.contents
-        )
-    }
-}
-
-#[derive(Copy, Clone, Debug)]
-pub enum HttpCode {
-    OK = 200,
-    BadRequest = 400,
-    NotFound = 404,
-}
-
-impl ToString for HttpCode {
-    fn to_string(&self) -> String {
-        let string = match self {
-            HttpCode::OK => "OK",
-            HttpCode::BadRequest => "Bad Request",
-            HttpCode::NotFound => "Not Found",
-        };
-        string.into()
-    }
-}
-
-fn stuff<'a>(request: &Request, app: &Hecto) -> MiddlewareResult<Hecto> {
-    let path = request.path;
-    let element = app.element_at_path(path);
-
-    let response = if let Some(entry) = element {
-        Response::ok(entry.to_html())
-    } else {
-        Response {
-            code: HttpCode::NotFound,
-            contents: String::new(),
-        }
-    };
-    MiddlewareResult::End(response)
-}
-
-pub trait ToHtml {
-    fn to_html(&self) -> String;
-}
-
-impl ToHtml for FolderEntry<&Post, &Folder> {
-    fn to_html(&self) -> String {
-        match self {
-            FolderEntry::Post(post) => post.contents.clone(),
-            FolderEntry::Folder(_) => String::new(),
-        }
-    }
-}
-
 lazy_static! {
     static ref REQUEST_REGEX: Regex = Regex::new(r"^GET /?([^\s]*)/? HTTP/1\.1\r\n").unwrap();
 }
 
-fn get_url(value: &str) -> Option<&Path> {
+fn get_url(value: &str) -> Option<PathBuf> {
     let captures = REQUEST_REGEX.captures(value)?;
     let capture = captures.get(1)?;
-    Some(Path::new(capture.as_str()))
+    Some(Path::new(capture.as_str()).into())
+}
+
+#[derive(Debug)]
+enum RequestError {
+    InvalidUrl
+}
+
+impl Display for RequestError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Invalid URL used.")
+    }
+}
+
+impl Error for RequestError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        None
+    }
+}
+
+fn get_buffer<'a>(stream: &mut TcpStream) -> Result<[u8; 512], Box<dyn Error>> {
+    let mut buffer = [0; 512];
+    stream.read(&mut buffer)?;
+    Ok(buffer)
 }
 
 #[cfg(test)]

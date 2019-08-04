@@ -37,4 +37,8 @@ impl Hecto {
     pub fn render_post(&self, path: &Path) -> Result<Post, Box<dyn Error>> {
         parse_post(path, &self.renderer)
     }
+
+    pub fn update_theme(&mut self) {
+        self.renderer.register_templates(&self.config.theme_path);
+    }
 }

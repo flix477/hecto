@@ -8,6 +8,7 @@ pub fn handle_theme_event(app: Arc<Mutex<Hecto>>) -> Box<dyn Fn(FsEvent) + Send>
         if let Some(event) = event {
             let mut app = app.lock().unwrap();
             dbg!(&event);
+            app.update_theme();
             match event {
                 ThemeModifiedEvent::Page => {
                     // rerender every page
