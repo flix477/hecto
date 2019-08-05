@@ -5,39 +5,49 @@ use std::error::Error;
 use std::path::{Path, PathBuf};
 use crate::core::posts::folder_entry::FolderEntry;
 use crate::core::posts::folder::Folder;
+use crate::core::config::Config;
+use crate::renderer::context::Context;
 
+mod context;
 mod folder_view;
 mod post_view;
 
 pub struct Renderer {
     registry: Handlebars,
+    site_name: String
 }
 
 impl Renderer {
-    pub fn new(theme_path: &PathBuf) -> Self {
+    pub fn new(config: &Config) -> Self {
         let mut registry = Handlebars::new();
         registry.set_strict_mode(true);
-        let mut renderer = Renderer { registry };
-        renderer.register_templates(&theme_path);
+        let mut renderer = Renderer { registry, site_name: config.site_name.clone() };
+        renderer.register_templates(&config.theme_path);
         renderer
     }
 
     pub fn render_post(&self, post: &Post) -> Result<String, Box<dyn Error>> {
-        let view = post_view::PostView::new(post);
+        let context = Context {
+            site_name: self.site_name.clone(),
+            data: post_view::PostView::new(post)
+        };
         self.registry
             .render(
                 "post",
-                &view,
+                &context,
             )
             .map_err(boxed_error)
     }
 
     pub fn render_folder(&self, folder: &Folder) -> Result<String, Box<dyn Error>> {
-        let view = folder_view::FolderView::new(folder);
+        let context = Context {
+            site_name: self.site_name.clone(),
+            data: folder_view::FolderView::new(folder)
+        };
         self.registry
             .render(
                 "folder",
-                &view
+                &context
             )
             .map_err(boxed_error)
     }

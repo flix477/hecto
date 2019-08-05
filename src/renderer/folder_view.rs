@@ -38,7 +38,7 @@ impl FolderLink {
     pub fn new(folder: &Folder, path: &Path) -> Self {
         Self {
             title: folder.name.clone(),
-            link: path_to_string(path)
+            link: path_to_string(path),
         }
     }
 }
@@ -47,7 +47,8 @@ impl FolderLink {
 pub struct PostLink {
     pub title: String,
     pub image: Option<String>,
-    pub link: String
+    pub link: String,
+    pub preview: String,
 }
 
 impl PostLink {
@@ -55,7 +56,8 @@ impl PostLink {
         Self {
             title: post.title(),
             image: post.metadata.image.clone(),
-            link: path_to_string(path)
+            link: path_to_string(path),
+            preview: post.metadata.preview.clone()
         }
     }
 }

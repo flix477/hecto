@@ -1,5 +1,11 @@
 {{#*inline "content"}}
     <style>
+        blockquote {
+            background: rgba(0, 0, 0, 0.05);
+            margin: 0;
+            padding: 1.25rem;
+        }
+
         h1, h2, h3, h4, h5 {
             font-family: 'Playfair Display', serif;
         }
@@ -58,7 +64,7 @@
             }
         }
     </style>
-    <p class="date">{{creation_date}}</p>
-    {{{contents}}}
+    <p class="date">{{data.creation_date}}</p>
+    {{{data.contents}}}
 {{/inline}}
 {{~> page this}}

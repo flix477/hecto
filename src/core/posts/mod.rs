@@ -42,4 +42,5 @@ impl Post {
 pub struct PostMetadata {
     pub title: Option<String>,
     pub image: Option<String>,
+    pub preview: String
 }

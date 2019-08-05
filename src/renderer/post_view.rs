@@ -6,7 +6,7 @@ use chrono::{DateTime, Utc};
 pub struct PostView {
     pub title: String,
     pub contents: String,
-    pub creation_date: String
+    pub creation_date: String,
 }
 
 impl PostView {
@@ -17,7 +17,7 @@ impl PostView {
         Self {
             title: post.title(),
             contents: post.contents.clone(),
-            creation_date
+            creation_date,
         }
     }
 }

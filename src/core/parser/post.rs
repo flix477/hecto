@@ -43,13 +43,11 @@ fn parse_markdown_html(parser: Parser) -> String {
 }
 
 fn parse_metadata(parser: Parser) -> PostMetadata {
-    let mut metadata = PostMetadata {
-        title: None,
-        image: None,
-    };
+    let mut metadata = PostMetadata::default();
 
     let mut title = String::new();
     let mut title_started = false;
+    let preview_length = 100;
 
     parser.for_each(|event| match event {
         Event::Start(Tag::Header(1)) => {
@@ -60,6 +58,8 @@ fn parse_metadata(parser: Parser) -> PostMetadata {
         Event::Text(text) => {
             if title_started {
                 title.push_str(&text)
+            } else if !title.is_empty() && metadata.preview.len() <= preview_length {
+                metadata.preview.push_str(&text)
             }
         }
         Event::End(Tag::Header(1)) => {

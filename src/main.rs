@@ -17,7 +17,7 @@ pub mod watcher;
 
 fn main() {
     let config = Config::default();
-    let renderer = Renderer::new(&config.theme_path);
+    let renderer = Renderer::new(&config);
     let root = parse_folder(&config.site_root, &renderer).expect("Error reading site root");
     dbg!(list(&root, Path::new("")));
 
