@@ -1,6 +1,6 @@
-use std::thread::{spawn, JoinHandle};
-use crossbeam_channel::{unbounded, Sender, Receiver};
+use crossbeam_channel::{unbounded, Receiver, Sender};
 use std::sync::{Arc, Mutex};
+use std::thread::{spawn, JoinHandle};
 
 type Job = Box<dyn FnOnce() + Send>;
 
@@ -13,13 +13,11 @@ impl ThreadPool {
     pub fn new(size: usize) -> Self {
         let (tx, rx) = unbounded::<Message>();
         let rx = Arc::new(Mutex::new(rx));
-        let workers = (0..size)
-            .map(|i| Worker::new(i, rx.clone()))
-            .collect();
+        let workers = (0..size).map(|_| Worker::new(rx.clone())).collect();
 
         Self {
             workers,
-            sender: tx
+            sender: tx,
         }
     }
 
@@ -37,28 +35,25 @@ impl Drop for ThreadPool {
 
 enum Message {
     Job(Job),
-    Stop
+    Stop,
 }
 
 struct Worker {
-    id: usize,
     thread: Option<JoinHandle<()>>
 }
 
 impl Worker {
-    pub fn new(id: usize, receiver: Arc<Mutex<Receiver<Message>>>) -> Self {
-        let thread = spawn(move || {
-            loop {
-                match receiver.lock().unwrap().recv().unwrap() {
-                    Message::Job(job) => (job)(),
-                    Message::Stop => break
-                };
-            }
+    pub fn new(receiver: Arc<Mutex<Receiver<Message>>>) -> Self {
+        let thread = spawn(move || loop {
+            let job = receiver.lock().unwrap().recv().unwrap();
+            match job {
+                Message::Job(job) => (job)(),
+                Message::Stop => break,
+            };
         });
 
         Self {
-            id,
-            thread: Some(thread)
+            thread: Some(thread),
         }
     }
 }

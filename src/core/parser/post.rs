@@ -1,29 +1,26 @@
-use crate::core::post::{Post, PostMetadata};
-use crate::renderer::Renderer;
+use crate::core::posts::{Post, PostMetadata};
 use crate::util::{boxed_error, os_str_to_string};
 use pulldown_cmark::{Event, Parser, Tag};
 use std::error::Error;
 use std::fs;
 use std::path::Path;
+use std::fs::Metadata;
 
-pub fn parse_post(path: &Path, renderer: &Renderer) -> Result<Post, Box<dyn Error>> {
-    let render = |post| renderer.rendered_post(post);
-    initial_post(path).map(parse_markdown).and_then(render)
+pub fn parse_post(path: &Path, metadata: &Metadata) -> Result<Post, Box<dyn Error>> {
+    initial_post(path, metadata).map(parse_markdown)
 }
 
-fn initial_post(path: &Path) -> Result<Post, Box<dyn Error>> {
+fn initial_post(path: &Path, metadata: &Metadata) -> Result<Post, Box<dyn Error>> {
     Ok(Post {
-        name: os_str_to_string(path
-            .file_name()
-            .unwrap()
-        ),
-        source: fs::read_to_string(path).map_err(boxed_error)?,
+        name: os_str_to_string(path.file_name().unwrap()),
+        creation_date: metadata.created()?,
+        contents: fs::read_to_string(path).map_err(boxed_error)?,
         ..Post::default()
     })
 }
 
 fn parse_markdown(post: Post) -> Post {
-    let parser = get_parser(post.source.as_str());
+    let parser = get_parser(post.contents.as_str());
     let contents = parse_markdown_html(parser.clone());
     let metadata = parse_metadata(parser);
 

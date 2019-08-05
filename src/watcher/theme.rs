@@ -5,20 +5,10 @@ use std::sync::{Arc, Mutex};
 pub fn handle_theme_event(app: Arc<Mutex<Hecto>>) -> Box<dyn Fn(FsEvent) + Send> {
     Box::new(move |event| {
         let event: Option<ThemeModifiedEvent> = event.into();
-        if let Some(event) = event {
+        if event.is_some() {
             let mut app = app.lock().unwrap();
-            dbg!(&event);
             app.update_theme();
-            match event {
-                ThemeModifiedEvent::Page => {
-                    // rerender every page
-                    app.rerender();
-                }
-                ThemeModifiedEvent::Post => {
-                    // rerender every post
-                    app.rerender_posts();
-                }
-            }
+            println!("Theme updated.");
         }
     })
 }
@@ -27,6 +17,7 @@ pub fn handle_theme_event(app: Arc<Mutex<Hecto>>) -> Box<dyn Fn(FsEvent) + Send>
 enum ThemeModifiedEvent {
     Page,
     Post,
+    Folder
 }
 
 impl Into<Option<ThemeModifiedEvent>> for FsEvent {
@@ -38,6 +29,7 @@ impl Into<Option<ThemeModifiedEvent>> for FsEvent {
                     match name {
                         "page" => Some(ThemeModifiedEvent::Page),
                         "post" => Some(ThemeModifiedEvent::Post),
+                        "folder" => Some(ThemeModifiedEvent::Folder),
                         _ => None,
                     }
                 } else {

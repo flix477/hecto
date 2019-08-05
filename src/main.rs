@@ -3,6 +3,7 @@ use std::path::Path;
 extern crate lazy_static;
 use crate::core::config::Config;
 use crate::core::parser::parse_folder;
+use crate::core::posts::folders::list;
 use crate::core::Hecto;
 use crate::renderer::Renderer;
 use crate::server::Server;
@@ -18,7 +19,7 @@ fn main() {
     let config = Config::default();
     let renderer = Renderer::new(&config.theme_path);
     let root = parse_folder(&config.site_root, &renderer).expect("Error reading site root");
-    dbg!(root.list(Path::new("")));
+    dbg!(list(&root, Path::new("")));
 
     let state = Arc::new(Mutex::new(Hecto {
         config,

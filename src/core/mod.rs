@@ -1,15 +1,14 @@
 use crate::core::config::Config;
-use crate::core::folder::{Folder, FolderEntry};
-use crate::core::post::Post;
+use crate::core::posts::folder::Folder;
+use crate::core::posts::folder_entry::FolderEntry;
+use crate::core::posts::Post;
 use crate::renderer::Renderer;
 use std::path::Path;
-use std::error::Error;
-use crate::core::parser::post::parse_post;
+use crate::core::posts::folders::element_at;
 
 pub mod config;
-pub mod folder;
 pub mod parser;
-pub mod post;
+pub mod posts;
 
 pub struct Hecto {
     pub config: Config,
@@ -19,11 +18,7 @@ pub struct Hecto {
 
 impl Hecto {
     pub fn element_at_path(&self, path: &Path) -> Option<FolderEntry<&Post, &Folder>> {
-        if path.components().count() == 0 {
-            Some(FolderEntry::Folder(&self.root))
-        } else {
-            self.root.element_at_path(path)
-        }
+        element_at(&self.root, path)
     }
 
     pub fn rerender(&mut self) {
@@ -32,10 +27,6 @@ impl Hecto {
 
     pub fn rerender_posts(&mut self) {
         self.root.rerender_posts(&self.renderer);
-    }
-
-    pub fn render_post(&self, path: &Path) -> Result<Post, Box<dyn Error>> {
-        parse_post(path, &self.renderer)
     }
 
     pub fn update_theme(&mut self) {

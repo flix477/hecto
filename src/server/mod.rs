@@ -1,16 +1,16 @@
+use crate::core::Hecto;
+use crate::server::query::stuff;
+use crate::server::response::Response;
+use crate::server::thread_pool::ThreadPool;
+use crate::util::boxed_error;
+use core::fmt;
 use regex::Regex;
+use std::error::Error;
+use std::fmt::Display;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
-use std::error::Error;
-use core::fmt;
-use std::fmt::Display;
-use crate::core::Hecto;
-use crate::server::response::Response;
-use crate::util::boxed_error;
-use crate::server::thread_pool::ThreadPool;
-use crate::server::query::stuff;
 
 mod query;
 mod response;
@@ -19,13 +19,13 @@ mod thread_pool;
 type Middleware<T> = fn(&Request, &T) -> MiddlewareResult<T>;
 
 pub struct Server {
-    thread_pool: ThreadPool
+    thread_pool: ThreadPool,
 }
 
 impl Default for Server {
     fn default() -> Self {
         Self {
-            thread_pool: ThreadPool::new(4)
+            thread_pool: ThreadPool::new(4),
         }
     }
 }
@@ -45,7 +45,6 @@ impl Server {
             let stream = stream.unwrap();
             let app = app.clone();
             let middlewares = middlewares.clone();
-            dbg!("im in");
             self.thread_pool.execute(move || {
                 handle_connection(stream, &app, &middlewares).unwrap_or_else(|error| {
                     println!("Error processing connection: {:?}", error);
@@ -55,7 +54,11 @@ impl Server {
     }
 }
 
-fn handle_connection<T>(mut stream: TcpStream, state: &T, middlewares: &[Middleware<T>]) -> Result<(), Box<dyn Error>> {
+fn handle_connection<T>(
+    mut stream: TcpStream,
+    state: &T,
+    middlewares: &[Middleware<T>],
+) -> Result<(), Box<dyn Error>> {
     let response = get_response(&mut stream, state, middlewares);
     stream.write(response.to_string().as_bytes())?;
     stream.flush().map_err(boxed_error)
@@ -63,13 +66,12 @@ fn handle_connection<T>(mut stream: TcpStream, state: &T, middlewares: &[Middlew
 
 fn get_response<T>(stream: &mut TcpStream, state: &T, middlewares: &[Middleware<T>]) -> Response {
     get_buffer(stream)
-        .map(|buffer| {
-            dbg!("huh");
-            String::from_utf8_lossy(&buffer).into_owned()
+        .map(|buffer| String::from_utf8_lossy(&buffer).into_owned())
+        .and_then(|buffer| {
+            get_url(&buffer)
+                .ok_or(RequestError::InvalidUrl)
+                .map_err(boxed_error)
         })
-        .and_then(|buffer| get_url(&buffer)
-            .ok_or(RequestError::InvalidUrl)
-            .map_err(boxed_error))
         .map(|url| {
             let request = Request { path: &url };
             run_middlewares(&request, state, middlewares)
@@ -109,7 +111,7 @@ fn get_url(value: &str) -> Option<PathBuf> {
 
 #[derive(Debug)]
 enum RequestError {
-    InvalidUrl
+    InvalidUrl,
 }
 
 impl Display for RequestError {

@@ -18,14 +18,22 @@ impl Response {
             contents,
         }
     }
+
+    pub fn internal_error() -> Response {
+        Response {
+            code: HttpCode::InternalServerError,
+            contents: String::new(),
+        }
+    }
 }
 
 impl ToString for Response {
     fn to_string(&self) -> String {
         format!(
-            "HTTP/1.1 {} {}\r\n\r\n{}",
+            "HTTP/1.1 {} {}\r\nContent-Length: {}\r\nContent-Type: text/html\r\n\r\n{}",
             self.code as usize,
             self.code.to_string(),
+            self.contents.as_bytes().len(),
             self.contents
         )
     }
@@ -36,7 +44,7 @@ pub enum HttpCode {
     OK = 200,
     BadRequest = 400,
     NotFound = 404,
-    InternalServerError = 500
+    InternalServerError = 500,
 }
 
 impl ToString for HttpCode {

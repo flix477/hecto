@@ -11,8 +11,8 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Config {
-            site_root: Path::new("C:/Users/comet/Documents/Code/ing150").into(),
-            cache_path: Path::new("C:/Users/comet/Documents/Code/math/.hecto").into(),
+            site_root: Path::new("/Users/felixleveille/Code/uni/phy").into(),
+            cache_path: Path::new("/Users/felixleveille/Code/uni/phy/.hecto").into(),
             theme_path: Path::new("themes/default").into(),
             hostname: "127.0.0.1".into(),
             port: 7878,

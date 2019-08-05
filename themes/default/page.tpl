@@ -12,10 +12,14 @@
         <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
                 onload="renderMathInElement(document.body);"></script>
         <style>
+            @import url('https://fonts.googleapis.com/css?family=Lato|Playfair+Display:400,500,900&display=swap');
+
             body {
-                font-family: "Segoe UI", arial, sans-serif;
+                font-family: "Lato", sans-serif;
                 color: #232323;
                 margin: 0;
+                line-height: 1.5;
+                overflow-x: hidden;
             }
 
             header {
@@ -26,16 +30,19 @@
             }
 
             header h1 {
+                display: inline;
+                padding: 0 8px;
                 margin: 0;
-                color: #7835a9;
-            }
-
-            header h1 span {
-                color: cornflowerblue;
+                font-weight: 900;
+                font-family: 'Playfair Display', sans-serif;
+                font-style: italic;
+                background: black;
+                color: white;
             }
 
             a {
                 text-decoration: none;
+                color: inherit;
             }
 
             .container {
@@ -46,18 +53,9 @@
             }
 
             .content {
-                margin: 16px 0;
-                overflow: hidden;
+                padding: 16px 0;
             }
-
-            .content > *:first-child {
-                margin-top: 0;
-            }
-
-            pre {
-                overflow: auto;
-            }
-
+            
             @media only screen and (max-width: 750px) {
                 .container {
                     margin: 0 16px;
@@ -69,11 +67,11 @@
         <div class="container">
             <header>
                 <a href="/">
-                    <h1>mah<span>blog</span></h1>
+                    <h1>ING150</h1>
                 </a>
             </header>
             <div class="content">
-                {{~> content}}
+                {{> content}}
             </div>
         </div>
     </body>
