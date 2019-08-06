@@ -5,6 +5,7 @@ use std::error::Error;
 use std::fs;
 use std::path::Path;
 use std::fs::Metadata;
+use std::cmp::min;
 
 pub fn parse_post(path: &Path, metadata: &Metadata) -> Result<Post, Box<dyn Error>> {
     initial_post(path, metadata).map(parse_markdown)
@@ -47,7 +48,8 @@ fn parse_metadata(parser: Parser) -> PostMetadata {
 
     let mut title = String::new();
     let mut title_started = false;
-    let preview_length = 100;
+    let preview_length = 250;
+    let mut text_contents = String::new();
 
     parser.for_each(|event| match event {
         Event::Start(Tag::Header(1)) => {
@@ -59,8 +61,11 @@ fn parse_metadata(parser: Parser) -> PostMetadata {
             if title_started {
                 title.push_str(&text)
             } else if !title.is_empty() && metadata.preview.len() <= preview_length {
-                metadata.preview.push_str(&text)
+                metadata.preview.push_str(&text[0..min(preview_length, text.len())])
             }
+
+            text_contents.push_str(&text);
+            text_contents.push_str(" ");
         }
         Event::End(Tag::Header(1)) => {
             if title_started {
@@ -70,9 +75,24 @@ fn parse_metadata(parser: Parser) -> PostMetadata {
                     metadata.title = Some(title.clone());
                 }
             }
-        }
+        },
+        Event::Start(Tag::Image(_, url, _)) => {
+            if metadata.image.is_none() {
+                metadata.image = Some(url.to_string());
+            }
+        },
         _ => {}
     });
 
+    metadata.reading_time = calculate_reading_time(&text_contents);
+
     metadata
+}
+
+const READING_SPEED: usize = 200;
+
+fn calculate_reading_time(contents: &str) -> usize {
+    let words = contents.split(" ").count();
+    let reading_time = words as f32 / READING_SPEED as f32;
+    reading_time.round() as usize
 }

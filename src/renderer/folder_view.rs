@@ -4,6 +4,7 @@ use crate::util::path_to_string;
 use crate::core::posts::Post;
 use crate::core::posts::folders::{folders, posts};
 use serde::Serialize;
+use chrono::{DateTime, Utc};
 
 #[derive(Serialize)]
 pub struct FolderView {
@@ -17,7 +18,9 @@ impl FolderView {
         let folders = folders(folder.entries.iter())
             .map(|folder| FolderLink::new(folder, Path::new(&folder.name)))
             .collect();
-        let posts = posts(folder.entries.iter())
+        let mut posts: Vec<&Post> = posts(folder.entries.iter()).collect();
+        posts.sort_by_key(|post| post.creation_date);
+        let posts = posts.iter()
             .map(|post| PostLink::new(&post, Path::new(&post.name)))
             .collect();
         Self {
@@ -49,15 +52,22 @@ pub struct PostLink {
     pub image: Option<String>,
     pub link: String,
     pub preview: String,
+    pub creation_date: String,
+    pub reading_time: usize
 }
 
 impl PostLink {
     pub fn new(post: &Post, path: &Path) -> Self {
+        let creation_date: DateTime<Utc> = post.creation_date.into();
+        let creation_date = creation_date.format("%A %B %d %Y, %H:%M").to_string();
+
         Self {
             title: post.title(),
             image: post.metadata.image.clone(),
             link: path_to_string(path),
-            preview: post.metadata.preview.clone()
+            preview: post.metadata.preview.clone(),
+            creation_date,
+            reading_time: post.metadata.reading_time
         }
     }
 }

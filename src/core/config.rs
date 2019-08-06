@@ -12,7 +12,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Config {
-            site_name: "physique".into(),
+            site_name: "Félix Léveillé".into(),
             site_root: Path::new("/Users/felixleveille/Code/uni/phy").into(),
             cache_path: Path::new("/Users/felixleveille/Code/uni/phy/.hecto").into(),
             theme_path: Path::new("themes/default").into(),

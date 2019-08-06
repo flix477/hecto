@@ -7,6 +7,7 @@ pub struct PostView {
     pub title: String,
     pub contents: String,
     pub creation_date: String,
+    pub reading_time: usize
 }
 
 impl PostView {
@@ -18,6 +19,7 @@ impl PostView {
             title: post.title(),
             contents: post.contents.clone(),
             creation_date,
+            reading_time: post.metadata.reading_time
         }
     }
 }
