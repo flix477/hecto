@@ -6,48 +6,39 @@ use std::path::{Path, PathBuf};
 use crate::core::posts::folder_entry::FolderEntry;
 use crate::core::posts::folder::Folder;
 use crate::core::config::Config;
-use crate::renderer::context::Context;
 
-mod context;
 mod folder_view;
 mod post_view;
 
 pub struct Renderer {
     registry: Handlebars,
-    site_name: String
 }
 
 impl Renderer {
     pub fn new(config: &Config) -> Self {
         let mut registry = Handlebars::new();
         registry.set_strict_mode(true);
-        let mut renderer = Renderer { registry, site_name: config.site_name.clone() };
+        let mut renderer = Renderer { registry };
         renderer.register_templates(&config.theme_path);
         renderer
     }
 
     pub fn render_post(&self, post: &Post) -> Result<String, Box<dyn Error>> {
-        let context = Context {
-            site_name: self.site_name.clone(),
-            data: post_view::PostView::new(post)
-        };
+        let data = post_view::PostView::new(post);
         self.registry
             .render(
                 "post",
-                &context,
+                &data,
             )
             .map_err(boxed_error)
     }
 
     pub fn render_folder(&self, folder: &Folder) -> Result<String, Box<dyn Error>> {
-        let context = Context {
-            site_name: self.site_name.clone(),
-            data: folder_view::FolderView::new(folder)
-        };
+        let data = folder_view::FolderView::new(folder);
         self.registry
             .render(
                 "folder",
-                &context
+                &data
             )
             .map_err(boxed_error)
     }

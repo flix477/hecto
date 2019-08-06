@@ -1,5 +1,5 @@
 use crate::core::posts::folder::Folder;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use crate::util::path_to_string;
 use crate::core::posts::Post;
 use crate::core::posts::folders::{folders, posts};

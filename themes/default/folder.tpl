@@ -59,9 +59,9 @@
         }
     </style>
 
-    {{#if data.posts}}
+    {{#if posts}}
         <section class="posts">
-            {{#each data.posts as |post|}}
+            {{#each posts as |post|}}
                 <div class="post">
                     {{#if post.image}}
                         <img src={{post.image}} />
@@ -84,10 +84,10 @@
     {{else}}
         <h1>There does not seem to be anything here.</h1>
     {{/if}}
-    {{#if data.folders}}
+    {{#if folders}}
         <section>
             <div>
-                {{#each data.folders as |folder|}}
+                {{#each folders as |folder|}}
                     <a href={{folder.link}}><h2>{{folder.title}}</h2></a>
                 {{/each}}
             </div>

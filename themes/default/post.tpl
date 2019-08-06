@@ -64,7 +64,7 @@
             }
         }
     </style>
-    <p class="date">{{data.creation_date}}</p>
-    {{{data.contents}}}
+    <p class="date">{{creation_date}}</p>
+    {{{contents}}}
 {{/inline}}
 {{~> page this}}
