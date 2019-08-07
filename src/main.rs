@@ -1,6 +1,4 @@
 #[macro_use]
-extern crate lazy_static;
-#[macro_use]
 extern crate clap;
 
 use std::path::Path;
@@ -9,7 +7,6 @@ use crate::core::parser::parse_folder;
 use crate::core::posts::folders::list;
 use crate::core::Hecto;
 use crate::renderer::Renderer;
-use crate::server::Server;
 use std::sync::{Arc, Mutex};
 use clap::{App, Arg};
 
@@ -21,7 +18,8 @@ pub mod watcher;
 
 fn main() {
     let default_config = Config::default();
-    let default_port = default_config.port.to_string();
+    let default_hostname = default_config.address.ip().to_string();
+    let default_port = default_config.address.port().to_string();
     let matches = App::new("hecto")
         .version(crate_version!())
         .about("Super simple markdown blog server.")
@@ -32,7 +30,7 @@ fn main() {
             .help("Hostname to host the blog.")
             .short("h")
             .long("hostname")
-            .default_value(&default_config.hostname)
+            .default_value(&default_hostname)
             .takes_value(true)
         )
         .arg(Arg::with_name("port")
@@ -73,5 +71,5 @@ fn main() {
         println!("Could not initialize hot-reloading. Changes to your blog will only appear after restarting Hecto.")
     }
 
-    Server::default().run(state.clone());
+    server::run(state.clone());
 }

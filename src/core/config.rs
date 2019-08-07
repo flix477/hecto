@@ -1,12 +1,13 @@
 use std::path::{Path, PathBuf};
 use std::env::{current_dir, current_exe};
 use clap::ArgMatches;
+use std::net::SocketAddr;
+use std::str::FromStr;
 
 pub struct Config {
     pub site_root: PathBuf,
     pub theme_path: PathBuf,
-    pub hostname: String,
-    pub port: u16,
+    pub address: SocketAddr
 }
 
 impl Default for Config {
@@ -14,8 +15,7 @@ impl Default for Config {
         Config {
             site_root: current_dir().unwrap(),
             theme_path: current_exe().unwrap().join(Path::new("themes/default").canonicalize().unwrap()),
-            hostname: "127.0.0.1".into(),
-            port: 7878,
+            address: ([127, 0, 0, 1], 7878).into()
         }
     }
 }
@@ -33,19 +33,14 @@ impl From<ArgMatches<'_>> for Config {
             .map(create_path)
             .unwrap_or(default.theme_path);
 
+        let hostname = matches.value_of("hostname").unwrap();
+        let port = matches.value_of("port").unwrap();
+
         Self {
             site_root,
             theme_path,
-            hostname: matches.value_of("hostname").unwrap().into(),
-            port: matches.value_of("port").unwrap()
-                .parse()
-                .expect("Invalid port number"),
+            address: SocketAddr::from_str(&format!("{}:{}", hostname, port))
+                .expect("Invalid host address")
         }
-    }
-}
-
-impl Config {
-    pub fn address(&self) -> String {
-        format!("{}:{}", self.hostname, self.port)
     }
 }

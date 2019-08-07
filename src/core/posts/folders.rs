@@ -73,6 +73,8 @@ pub fn element_at<'a>(
     folder: &'a Folder,
     path: &Path
 ) -> Option<FolderEntry<&'a Post, &'a Folder>> {
+    let path = path.strip_prefix("/").unwrap_or(path);
+
     path.components()
         .map(component_as_string)
         .try_fold(folder.into(), |acc: FolderEntry<&'a Post, &'a Folder>, component| {
