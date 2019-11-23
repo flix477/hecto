@@ -12,7 +12,7 @@ Super simple Markdown blog server.
 **To specify the directory to serve**:
 `hecto /path/to/folder/`
 
-By default, those will serve the current working directory at http://127.0.0.1:7878
+By default, those will serve at http://127.0.0.1:7878
 
 ### Arguments
 - `--hostname HOSTNAME`: Specify a custom hostname (or `-h`)
