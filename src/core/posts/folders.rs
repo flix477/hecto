@@ -71,36 +71,42 @@ where
 
 pub fn element_at<'a>(
     folder: &'a Folder,
-    path: &Path
+    path: &Path,
 ) -> Option<FolderEntry<&'a Post, &'a Folder>> {
     let path = path.strip_prefix("/").unwrap_or(path);
 
-    path.components()
-        .map(component_as_string)
-        .try_fold(folder.into(), |acc: FolderEntry<&'a Post, &'a Folder>, component| {
+    path.components().map(component_as_string).try_fold(
+        folder.into(),
+        |acc: FolderEntry<&'a Post, &'a Folder>, component| {
             acc.folder()
-                .and_then(|folder|
-                    folder.entries.iter()
+                .and_then(|folder| {
+                    folder
+                        .entries
+                        .iter()
                         .find(|entry| entry.name() == component)
-                )
+                })
                 .map(FolderEntry::as_ref)
-        })
+        },
+    )
 }
 
 pub fn mut_element_at<'a>(
     folder: &'a mut Folder,
-    path: &Path
+    path: &Path,
 ) -> Option<FolderEntry<&'a mut Post, &'a mut Folder>> {
-    path.components()
-        .map(component_as_string)
-        .try_fold(folder.into(), |acc: FolderEntry<&'a mut Post, &'a mut Folder>, component| {
+    path.components().map(component_as_string).try_fold(
+        folder.into(),
+        |acc: FolderEntry<&'a mut Post, &'a mut Folder>, component| {
             acc.folder()
-                .and_then(|folder|
-                    folder.entries.iter_mut()
+                .and_then(|folder| {
+                    folder
+                        .entries
+                        .iter_mut()
                         .find(|entry| entry.name() == component)
-                )
+                })
                 .map(FolderEntry::as_mut_ref)
-        })
+        },
+    )
 }
 
 pub fn list(folder: &Folder, base_path: &Path) -> Vec<PathBuf> {

@@ -1,10 +1,10 @@
 use crate::core::config::Config;
 use crate::core::posts::folder::Folder;
 use crate::core::posts::folder_entry::FolderEntry;
+use crate::core::posts::folders::element_at;
 use crate::core::posts::Post;
 use crate::renderer::Renderer;
 use std::path::Path;
-use crate::core::posts::folders::element_at;
 
 pub mod config;
 pub mod parser;

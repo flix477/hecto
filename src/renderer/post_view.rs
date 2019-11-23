@@ -1,13 +1,13 @@
 use crate::core::posts::Post;
-use serde::Serialize;
 use chrono::{DateTime, Utc};
+use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct PostView {
     pub title: String,
     pub contents: String,
     pub creation_date: String,
-    pub reading_time: usize
+    pub reading_time: usize,
 }
 
 impl PostView {
@@ -19,7 +19,7 @@ impl PostView {
             title: post.title(),
             contents: post.contents.clone(),
             creation_date,
-            reading_time: post.metadata.reading_time
+            reading_time: post.metadata.reading_time,
         }
     }
 }

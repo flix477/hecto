@@ -17,7 +17,7 @@ pub fn handle_theme_event(app: Arc<Mutex<Hecto>>) -> Box<dyn Fn(FsEvent) + Send>
 enum ThemeModifiedEvent {
     Page,
     Post,
-    Folder
+    Folder,
 }
 
 impl Into<Option<ThemeModifiedEvent>> for FsEvent {

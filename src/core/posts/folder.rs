@@ -1,5 +1,5 @@
 use crate::core::posts::folder_entry::FolderEntry;
-use crate::core::posts::folders::{mut_posts, mut_element_at};
+use crate::core::posts::folders::{mut_element_at, mut_posts};
 use crate::core::posts::Post;
 use crate::renderer::Renderer;
 use std::path::Path;

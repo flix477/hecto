@@ -1,16 +1,14 @@
 use crate::core::Hecto;
-use std::sync::{Arc, Mutex};
-use hyper::{Server, Response, Body, Request, StatusCode};
-use hyper::service::service_fn_ok;
-use hyper::rt::Future;
-use std::path::Path;
 use crate::renderer::ToHtml;
+use hyper::rt::Future;
+use hyper::service::service_fn_ok;
+use hyper::{Body, Request, Response, Server, StatusCode};
+use std::path::Path;
+use std::sync::{Arc, Mutex};
 
 pub fn run(app: Arc<Mutex<Hecto>>) {
     let address = app.lock().unwrap().config.address.clone();
-    let service = move || {
-        service_fn_ok(fetch_page(app.clone()))
-    };
+    let service = move || service_fn_ok(fetch_page(app.clone()));
 
     let server = Server::bind(&address)
         .serve(service)
@@ -26,7 +24,8 @@ pub fn fetch_page(app: Arc<Mutex<Hecto>>) -> impl Fn(Request<Body>) -> Response<
 
         let element = app.element_at_path(Path::new(path));
         if let Some(entry) = element {
-            entry.to_html(&app.renderer)
+            entry
+                .to_html(&app.renderer)
                 .map(|html| Response::new(Body::from(html)))
                 .unwrap_or_else(|error| {
                     eprintln!("{}", error);

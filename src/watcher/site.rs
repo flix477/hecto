@@ -1,3 +1,4 @@
+use crate::core::parser::post::parse_post;
 use crate::core::posts::folder::Folder;
 use crate::core::posts::folder_entry::FolderEntry;
 use crate::core::posts::Post;
@@ -9,7 +10,6 @@ use std::error::Error;
 use std::fmt::Display;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
-use crate::core::parser::post::parse_post;
 
 pub fn handle_site_event(app: Arc<Mutex<Hecto>>) -> Box<dyn Fn(FsEvent) + Send> {
     Box::new(move |event| {
@@ -27,7 +27,7 @@ pub fn handle_site_event(app: Arc<Mutex<Hecto>>) -> Box<dyn Fn(FsEvent) + Send> 
                             add_new_post(&mut app, post, &path).map_err(boxed_error)
                         })
                         .unwrap_or_else(|error| println!("Error adding post: {:?}", error));
-                },
+                }
                 SiteEvent::ModifiedPost(path) => {
                     std::fs::metadata(&path)
                         .map_err(boxed_error)
@@ -37,12 +37,12 @@ pub fn handle_site_event(app: Arc<Mutex<Hecto>>) -> Box<dyn Fn(FsEvent) + Send> 
                             update_post(&mut app, post, &path).map_err(boxed_error)
                         })
                         .unwrap_or_else(|error| println!("Error updating post: {:?}", error));;
-                },
+                }
                 SiteEvent::DeletedPost(path) => {
                     let path = relative_path(&path, &app.config.site_root);
                     remove_post(&mut app.root, &path)
                         .unwrap_or_else(|error| println!("Error removing post: {:?}", error));
-                },
+                }
                 _ => {
                     dbg!(event);
                 }
@@ -76,9 +76,12 @@ fn add_new_post(app: &mut Hecto, post: Post, path: &Path) -> Result<(), NewPostE
 
 fn update_post(app: &mut Hecto, modified_post: Post, path: &Path) -> Result<(), NewPostError> {
     let parent = get_parent_folder(&mut app.root, &path).ok_or(NewPostError::ParentNotFound)?;
-    let post = parent.entries.iter_mut()
+    let post = parent
+        .entries
+        .iter_mut()
         .find(|entry| entry.name() == modified_post.name)
-        .and_then(|entry| entry.as_mut_ref().post()).ok_or(NewPostError::ParentNotFound)?;
+        .and_then(|entry| entry.as_mut_ref().post())
+        .ok_or(NewPostError::ParentNotFound)?;
     std::mem::replace(post, modified_post);
     Ok(())
 }
