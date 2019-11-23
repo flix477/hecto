@@ -10,6 +10,20 @@ use std::path::Path;
 
 pub mod post;
 
+pub fn parse_folder(path: &Path, renderer: &Renderer) -> Result<Folder, Box<dyn Error>> {
+    let entries = std::fs::read_dir(path)?
+        .filter_map(Result::ok)
+        .map(|entry| parse_path(&entry.path(), renderer))
+        .flatten()
+        .flatten()
+        .collect();
+
+    Ok(Folder {
+        name: os_str_to_string(path.file_name().unwrap()),
+        entries
+    })
+}
+
 fn parse_path(
     path: &Path,
     renderer: &Renderer,
@@ -22,21 +36,6 @@ fn parse_path(
     } else {
         Ok(None)
     }
-}
-
-pub fn parse_folder(path: &Path, renderer: &Renderer) -> Result<Folder, Box<dyn Error>> {
-    let entries = std::fs::read_dir(path)?
-        .filter_map(Result::ok)
-        .map(|entry| parse_path(&entry.path(), renderer))
-        .flatten()
-        .flatten()
-        .collect();
-
-    Ok(Folder {
-        name: os_str_to_string(path.file_name().unwrap()),
-        entries,
-        ..Folder::default()
-    })
 }
 
 fn is_markdown_file(path: &Path, metadata: &Metadata) -> bool {

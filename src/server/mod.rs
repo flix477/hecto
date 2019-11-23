@@ -17,6 +17,7 @@ pub fn run(app: Arc<Mutex<Hecto>>) {
         .serve(service)
         .map_err(|e| eprintln!("Server error: {}", e));
 
+    println!("Running server at http://{}", address);
     hyper::rt::run(server);
 }
 
