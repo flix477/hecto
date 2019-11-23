@@ -14,6 +14,7 @@ pub enum FsEvent {
     DeletedPath(PathBuf),
 }
 
+// TODO: refactor
 pub fn initialize_watcher<F: Fn(FsEvent) + Send + 'static>(
     path: &Path,
     extension: &str,
