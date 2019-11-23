@@ -6,10 +6,6 @@
             padding: 1.25rem;
         }
 
-        h1, h2, h3, h4, h5 {
-            font-family: 'Playfair Display', serif;
-        }
-
         h2 {
             opacity: 0.9;
         }
@@ -20,22 +16,34 @@
 
         .content {
             text-align: center;
+            background: rgba(0, 0, 0, 0.4);
+            margin-bottom: 82px;
+            margin-top: 100px;
         }
 
         .content * {
             text-align: left;
         }
 
-        .content h1:nth-child(3) {
+        .content > * {
+            margin-left: 48px;
+            margin-right: 48px;
+        }
+
+        .content h1:nth-child(2) {
             margin-top: 0;
-            font-size: 42px;
-            font-weight: 900;
+            margin-bottom: 0;
+            font-size: 28px;
             text-align: center;
-            margin-bottom: 48px;
-            line-height: 1.3;
             padding: 16px;
             display: inline-block;
-            background: rgb(255, 230, 0);
+            color: #ededed;
+            background: rgb(50, 50, 50);
+            transform: translateY(-24px);
+        }
+
+        .content *:nth-child(3) {
+            margin-top: 0;
         }
 
         pre {
@@ -43,14 +51,19 @@
         }
 
         .date {
-            font-family: 'Playfair Display', serif;
             margin-top: 16px;
             margin-bottom: 4px;
             opacity: 0.5;
             font-weight: 400;
             font-style: italic;
-            font-size: 14px;
+            font-size: 12px;
             text-align: center;
+        }
+
+        p {
+            opacity: 0.7;
+            font-size: 16px;
+            margin-bottom: 48px;
         }
 
         @media only screen and (max-width: 750px) {
@@ -64,7 +77,6 @@
             }
         }
     </style>
-    <p class="date">{{creation_date}}</p>
     {{{contents}}}
 {{/inline}}
 {{~> page this}}
