@@ -3,11 +3,9 @@ extern crate clap;
 
 use crate::core::config::Config;
 use crate::core::parser::parse_folder;
-use crate::core::posts::folders::list;
 use crate::core::Hecto;
 use crate::renderer::Renderer;
 use clap::{App, Arg};
-use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 pub mod core;
