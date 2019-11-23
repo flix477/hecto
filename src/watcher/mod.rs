@@ -24,7 +24,7 @@ pub fn initialize(app: Arc<Mutex<Hecto>>) -> Result<(), Box<dyn Error>> {
     )?;
     initialize_watcher(
         &state.config.theme_path,
-        "tpl",
+        "hbs",
         handle_theme_event(app.clone()),
     )
 }

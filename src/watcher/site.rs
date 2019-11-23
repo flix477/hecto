@@ -11,6 +11,7 @@ use std::fmt::Display;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
+// TODO: refactor
 pub fn handle_site_event(app: Arc<Mutex<Hecto>>) -> Box<dyn Fn(FsEvent) + Send> {
     Box::new(move |event| {
         let event: Option<SiteEvent> = event.into();

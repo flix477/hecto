@@ -43,7 +43,7 @@ impl Renderer {
         self.registry
             .register_template_file(
                 template,
-                path_with_component(&theme_path, format!("{}.tpl", template).as_str()),
+                path_with_component(&theme_path, format!("{}.hbs", template).as_str()),
             )
             .expect(format!("Cannot read template: {}", template).as_str());
     }
