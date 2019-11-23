@@ -16,7 +16,6 @@ pub fn handle_site_event(app: Arc<Mutex<Hecto>>) -> Box<dyn Fn(FsEvent) + Send> 
         let event: Option<SiteEvent> = event.into();
         if let Some(event) = event {
             let mut app = app.lock().unwrap();
-            dbg!(&event);
             match event {
                 SiteEvent::NewPost(path) => {
                     std::fs::metadata(&path)

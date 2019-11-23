@@ -64,7 +64,6 @@ fn main() {
     let config = Config::from(matches);
     let renderer = Renderer::new(&config);
     let root = parse_folder(&config.site_root, &renderer).expect("Error reading site root");
-    dbg!(list(&root, Path::new("")));
 
     let state = Arc::new(Mutex::new(Hecto {
         config,
