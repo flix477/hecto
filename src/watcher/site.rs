@@ -36,7 +36,7 @@ pub fn handle_site_event(app: Arc<Mutex<Hecto>>) -> Box<dyn Fn(FsEvent) + Send> 
                             let path = relative_path(&path, &app.config.site_root);
                             update_post(&mut app, post, &path).map_err(boxed_error)
                         })
-                        .unwrap_or_else(|error| println!("Error updating post: {:?}", error));;
+                        .unwrap_or_else(|error| println!("Error updating post: {:?}", error));
                 }
                 SiteEvent::DeletedPost(path) => {
                     let path = relative_path(&path, &app.config.site_root);
