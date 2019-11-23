@@ -1,11 +1,11 @@
 use crate::core::posts::{Post, PostMetadata};
 use crate::util::{boxed_error, os_str_to_string};
 use pulldown_cmark::{Event, Parser, Tag};
+use std::cmp::min;
 use std::error::Error;
 use std::fs;
-use std::path::Path;
 use std::fs::Metadata;
-use std::cmp::min;
+use std::path::Path;
 
 pub fn parse_post(path: &Path, metadata: &Metadata) -> Result<Post, Box<dyn Error>> {
     let name = os_str_to_string(path.file_name().unwrap());
@@ -19,7 +19,7 @@ pub fn parse_post(path: &Path, metadata: &Metadata) -> Result<Post, Box<dyn Erro
         name,
         creation_date,
         contents,
-        metadata
+        metadata,
     })
 }
 
@@ -53,7 +53,9 @@ fn parse_metadata(parser: Parser) -> PostMetadata {
             if title_started {
                 title.push_str(&text)
             } else if !title.is_empty() && metadata.preview.len() <= preview_length {
-                metadata.preview.push_str(&text[0..min(preview_length, text.len())])
+                metadata
+                    .preview
+                    .push_str(&text[0..min(preview_length, text.len())])
             }
 
             text_contents.push_str(&text);
@@ -67,12 +69,12 @@ fn parse_metadata(parser: Parser) -> PostMetadata {
                     metadata.title = Some(title.clone());
                 }
             }
-        },
+        }
         Event::Start(Tag::Image(_, url, _)) => {
             if metadata.image.is_none() {
                 metadata.image = Some(url.to_string());
             }
-        },
+        }
         _ => {}
     });
 

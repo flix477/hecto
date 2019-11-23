@@ -1,11 +1,11 @@
+use crate::core::config::Config;
+use crate::core::posts::folder::Folder;
+use crate::core::posts::folder_entry::FolderEntry;
 use crate::core::posts::Post;
 use crate::util::boxed_error;
 use handlebars::Handlebars;
 use std::error::Error;
 use std::path::{Path, PathBuf};
-use crate::core::posts::folder_entry::FolderEntry;
-use crate::core::posts::folder::Folder;
-use crate::core::config::Config;
 
 mod folder_view;
 mod post_view;
@@ -25,22 +25,12 @@ impl Renderer {
 
     pub fn render_post(&self, post: &Post) -> Result<String, Box<dyn Error>> {
         let data = post_view::PostView::new(post);
-        self.registry
-            .render(
-                "post",
-                &data,
-            )
-            .map_err(boxed_error)
+        self.registry.render("post", &data).map_err(boxed_error)
     }
 
     pub fn render_folder(&self, folder: &Folder) -> Result<String, Box<dyn Error>> {
         let data = folder_view::FolderView::new(folder);
-        self.registry
-            .render(
-                "folder",
-                &data
-            )
-            .map_err(boxed_error)
+        self.registry.render("folder", &data).map_err(boxed_error)
     }
 
     pub fn register_templates(&mut self, theme_path: &PathBuf) {

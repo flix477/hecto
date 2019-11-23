@@ -13,6 +13,7 @@ pub mod post;
 pub fn parse_folder(path: &Path, renderer: &Renderer) -> Result<Folder, Box<dyn Error>> {
     let entries = std::fs::read_dir(path)?
         .filter_map(Result::ok)
+        .filter(|entry| !is_hidden(&entry.path()))
         .map(|entry| parse_path(&entry.path(), renderer))
         .flatten()
         .flatten()
@@ -20,7 +21,7 @@ pub fn parse_folder(path: &Path, renderer: &Renderer) -> Result<Folder, Box<dyn 
 
     Ok(Folder {
         name: os_str_to_string(path.file_name().unwrap()),
-        entries
+        entries,
     })
 }
 
@@ -44,4 +45,8 @@ fn is_markdown_file(path: &Path, metadata: &Metadata) -> bool {
     } else {
         false
     }
+}
+
+fn is_hidden(path: &Path) -> bool {
+    os_str_to_string(path.file_name().unwrap()).starts_with('.')
 }

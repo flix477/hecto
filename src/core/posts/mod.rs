@@ -23,7 +23,7 @@ impl Default for Post {
             name: String::default(),
             creation_date: SystemTime::now(),
             metadata: PostMetadata::default(),
-            contents: String::default()
+            contents: String::default(),
         }
     }
 }
@@ -34,7 +34,8 @@ impl Post {
             title
         } else {
             &self.name
-        }.clone()
+        }
+        .clone()
     }
 }
 
@@ -43,5 +44,5 @@ pub struct PostMetadata {
     pub title: Option<String>,
     pub image: Option<String>,
     pub preview: String,
-    pub reading_time: usize
+    pub reading_time: usize,
 }

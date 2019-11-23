@@ -77,7 +77,7 @@ where
 /// Gets the folder entry at a given path
 pub fn element_at<'a>(
     folder: &'a Folder,
-    path: &Path
+    path: &Path,
 ) -> Option<FolderEntry<&'a Post, &'a Folder>> {
     let path = path.strip_prefix("/").unwrap_or(path);
 
@@ -86,9 +86,10 @@ pub fn element_at<'a>(
         .try_fold(folder.into(), element_at_string)
 }
 
-fn element_at_string<'a>(acc: FolderEntry<&'a Post, &'a Folder>, component: String)
-               -> Option<FolderEntry<&'a Post, &'a Folder>>
-{
+fn element_at_string<'a>(
+    acc: FolderEntry<&'a Post, &'a Folder>,
+    component: String,
+) -> Option<FolderEntry<&'a Post, &'a Folder>> {
     acc.folder()
         .and_then(|folder| folder.get_entry(&component))
         .map(FolderEntry::as_ref)
@@ -97,16 +98,17 @@ fn element_at_string<'a>(acc: FolderEntry<&'a Post, &'a Folder>, component: Stri
 /// Gets the folder entry at a given path as a mutable reference
 pub fn mut_element_at<'a>(
     folder: &'a mut Folder,
-    path: &Path
+    path: &Path,
 ) -> Option<FolderEntry<&'a mut Post, &'a mut Folder>> {
     path.components()
         .map(component_as_string)
         .try_fold(folder.into(), mut_element_at_string)
 }
 
-fn mut_element_at_string<'a>(acc: FolderEntry<&'a mut Post, &'a mut Folder>, component: String)
-                      -> Option<FolderEntry<&'a mut Post, &'a mut Folder>>
-{
+fn mut_element_at_string<'a>(
+    acc: FolderEntry<&'a mut Post, &'a mut Folder>,
+    component: String,
+) -> Option<FolderEntry<&'a mut Post, &'a mut Folder>> {
     acc.folder()
         .and_then(|folder| folder.get_mut_entry(&component))
         .map(FolderEntry::as_mut_ref)

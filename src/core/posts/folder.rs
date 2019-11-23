@@ -1,5 +1,5 @@
 use crate::core::posts::folder_entry::FolderEntry;
-use crate::core::posts::folders::{mut_posts, mut_element_at};
+use crate::core::posts::folders::{mut_element_at, mut_posts};
 use crate::core::posts::Post;
 use crate::renderer::Renderer;
 use std::path::Path;
@@ -37,12 +37,10 @@ impl Folder {
     }
 
     pub fn get_entry(&self, name: &str) -> Option<&FolderEntry<Post, Folder>> {
-        self.entries.iter()
-            .find(|entry| entry.name() == name)
+        self.entries.iter().find(|entry| entry.name() == name)
     }
 
     pub fn get_mut_entry(&mut self, name: &str) -> Option<&mut FolderEntry<Post, Folder>> {
-        self.entries.iter_mut()
-            .find(|entry| entry.name() == name)
+        self.entries.iter_mut().find(|entry| entry.name() == name)
     }
 }
