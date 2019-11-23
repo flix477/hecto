@@ -6,6 +6,7 @@ Super simple Markdown blog server.
 ## Features
 - Transform a folder of Markdown files to a blog in a single command
 - (Somewhat buggy) Live reloading on new posts and theme changes
+- Renders LaTeX equations (using KaTeX)
 
 ## Usage
 **From the directory you want to serve**:
