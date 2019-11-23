@@ -6,7 +6,7 @@
 
         .post {
             height: 100%;
-            background: white;
+            background: rgba(0, 0, 0, 0.4);
             margin-bottom: 64px;
         }
 
@@ -19,7 +19,6 @@
 
         .post .post-content {
             position: relative;
-            border: 1px solid rgba(0,0,0,0.6);
             text-align: center;
         }
 
@@ -29,19 +28,20 @@
 
         .post-title-container h3 {
             display: inline-block;
-            font-family: 'Playfair Display', serif;
             padding: 16px;
             margin: 0;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 800;
-            background: rgb(255, 230, 0);
+            color: #ededed;
+            background: rgb(50, 50, 50);
+            max-width: 80%;
         }
 
         .post-title-container .post-info {
             display: flex;
             justify-content: center;
             margin-top: 8px;
-            font-size: 14px;
+            font-size: 12px;
             font-style: italic;
             opacity: 0.35;
         }
@@ -55,6 +55,21 @@
             margin: 0;
             padding: 32px 42px;
             padding-top: 0;
+            font-size: 16px;
+            opacity: 0.7;
+        }
+
+        .empty {
+            opacity: 0.5;
+            font-size: 18px;
+        }
+
+        #folders a {
+            display: block;
+            letter-spacing: -1px;
+            font-family: 'Alata', sans-serif;
+            text-decoration: none;
+            opacity: 0.8;
             font-size: 20px;
         }
     </style>
@@ -82,13 +97,13 @@
             {{/each}}
         </section>
     {{else}}
-        <h1>There does not seem to be anything here.</h1>
+        <h1 class="empty">No posts here.</h1>
     {{/if}}
     {{#if folders}}
-        <section>
+        <section id="folders">
             <div>
                 {{#each folders as |folder|}}
-                    <a href={{folder.link}}><h2>{{folder.title}}</h2></a>
+                    <a href={{folder.link}}>{{folder.title}}</a>
                 {{/each}}
             </div>
         </section>

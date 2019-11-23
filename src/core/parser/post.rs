@@ -8,28 +8,19 @@ use std::fs::Metadata;
 use std::path::Path;
 
 pub fn parse_post(path: &Path, metadata: &Metadata) -> Result<Post, Box<dyn Error>> {
-    initial_post(path, metadata).map(parse_markdown)
-}
-
-fn initial_post(path: &Path, metadata: &Metadata) -> Result<Post, Box<dyn Error>> {
-    Ok(Post {
-        name: os_str_to_string(path.file_name().unwrap()),
-        creation_date: metadata.created()?,
-        contents: fs::read_to_string(path).map_err(boxed_error)?,
-        ..Post::default()
-    })
-}
-
-fn parse_markdown(post: Post) -> Post {
-    let parser = get_parser(post.contents.as_str());
+    let name = os_str_to_string(path.file_name().unwrap());
+    let creation_date = metadata.created()?;
+    let text_contents = fs::read_to_string(path).map_err(boxed_error)?;
+    let parser = get_parser(&text_contents);
     let contents = parse_markdown_html(parser.clone());
     let metadata = parse_metadata(parser);
 
-    Post {
+    Ok(Post {
+        name,
+        creation_date,
         contents,
         metadata,
-        ..post
-    }
+    })
 }
 
 fn get_parser(contents: &str) -> Parser {
@@ -43,6 +34,7 @@ fn parse_markdown_html(parser: Parser) -> String {
     html
 }
 
+// TODO: refactor
 fn parse_metadata(parser: Parser) -> PostMetadata {
     let mut metadata = PostMetadata::default();
 

@@ -42,7 +42,7 @@ impl FolderLink {
     pub fn new(folder: &Folder, path: &Path) -> Self {
         Self {
             title: folder.name.clone(),
-            link: path_to_string(path),
+            link: path_to_string(path) + "/",
         }
     }
 }

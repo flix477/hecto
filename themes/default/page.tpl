@@ -12,68 +12,66 @@
         <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
                 onload="renderMathInElement(document.body);"></script>
         <style>
-            @import url('https://fonts.googleapis.com/css?family=PT+Serif:400|Playfair+Display:400,500,900&display=swap');
+            @import url('https://fonts.googleapis.com/css?family=Alata&display=swap');
 
             body {
-                font-family: 'PT Serif', serif;
-                color: #232323;
+                color: #ffffff;
+                background-color: #222222;
                 margin: 0;
-                line-height: 1.5;
+                line-height: 1.6;
                 overflow-x: hidden;
                 font-size: 18px;
-                background: rgb(250, 250, 250);
+                font-family: 'Roboto', sans-serif;
+            }
+
+            h1, h2, h3, h4, h5, #menu {
+                letter-spacing: -1px;
+                font-family: 'Alata', sans-serif;
             }
 
             header {
-                text-align: center;
+                position: fixed;
+                padding: 16px 0;
             }
 
-            header a {
-                display: inline-flex;
-                flex-direction: column;
-                align-items: center;
+            #menu {
+                display: flex;
                 justify-content: center;
-                margin-top: 56px;
-                margin-bottom: 36px;
-            }
-
-            header img {
-                width: 128px;
-                height: 128px;
-                margin-bottom: 8px;
-                background: rgba(0, 0, 0, 0.1);
-                border-radius: 50%;
-            }
-
-            header h1 {
-                display: inline;
-                margin: 0;
-                font-weight: 900;
-                font-family: 'Playfair Display', sans-serif;
-                font-style: italic;
-                color: black;
+                align-items: center;
                 font-size: 32px;
-            }
-
-            header p {
-                margin: 0;
-                opacity: 0.5;
-                font-size: 16px;
-            }
-
-            a {
                 text-decoration: none;
                 color: inherit;
+                width: 56px;
+                height: 56px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                transition: background-color 0.3s, color 0.3s;
+            }
+
+            #menu:hover {
+                color: #222222;
+                background-color: #ffffff;
             }
 
             .container {
                 display: grid;
                 justify-content: stretch;
-                max-width: 800px;
+                max-width: 900px;
                 margin: auto;
             }
 
-            @media only screen and (max-width: 850px) {
+            .content {
+                margin-top: 82px;
+                max-width: 750px;
+                width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            a {
+                color: inherit;
+            }
+
+            @media only screen and (max-width: 932px) {
                 .container {
                     margin: 0 16px;
                 }
@@ -83,11 +81,7 @@
     <body>
         <div class="container">
             <header>
-                <a href="/">
-                    <img src="https://avatars0.githubusercontent.com/u/6579510?s=460&v=4" />
-                    <h1>Félix Léveillé</h1>
-                    <p>Software Engineer</p>
-                </a>
+                <a id="menu" href="/">hc</a>
             </header>
             <div class="content">
                 {{> content}}

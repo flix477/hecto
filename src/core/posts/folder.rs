@@ -35,4 +35,12 @@ impl Folder {
             Err(error) => println!("Error rerendering post: {}", error.description()),
         });
     }
+
+    pub fn get_entry(&self, name: &str) -> Option<&FolderEntry<Post, Folder>> {
+        self.entries.iter().find(|entry| entry.name() == name)
+    }
+
+    pub fn get_mut_entry(&mut self, name: &str) -> Option<&mut FolderEntry<Post, Folder>> {
+        self.entries.iter_mut().find(|entry| entry.name() == name)
+    }
 }
